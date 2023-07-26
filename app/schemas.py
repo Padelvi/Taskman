@@ -10,3 +10,7 @@ class TaskResponse(Task):
 
 class CompleteTask(BaseModel):
     completed: bool
+
+class User(BaseModel):
+    name: str
+    password: str

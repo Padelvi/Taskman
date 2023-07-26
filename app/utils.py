@@ -1,9 +1,5 @@
 from . import models
-from fastapi import HTTPException
-
-class TaskNotFoundErr(HTTPException):
-    def __init__(self, task_id: int):
-        super().__init__(status_code=404, detail=f"Task with id {task_id} not found")
+from .errors import TaskNotFoundErr, UserNotFoundErr
 
 def get_task(index, db):
     query = db.query(models.Task).filter_by(id=index)
@@ -13,7 +9,6 @@ def get_task(index, db):
     return task
 
 def sql_task_to_dict(task: models.Task):
-    task_dict = task.__dict__
     columns = task.__table__.columns.keys()
     attributes = {c: getattr(task, c) for c in columns}
     return attributes
@@ -24,3 +19,11 @@ def add_id_to_task(task, index):
         **sql_task_to_dict(task)
     }
     return task_return
+
+def get_user(username, db):
+    query = db.query(models.User).filter_by(name=username)
+    user = query.first()
+    if user is None:
+        raise UserNotFoundErr(username=username)
+    return user
+
