@@ -26,4 +26,3 @@ def get_user(username, db):
     if user is None:
         raise UserNotFoundErr(username=username)
     return user
-
