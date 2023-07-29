@@ -14,3 +14,11 @@ class UserAlreadyExistsErr(HTTPException):
     def __init__(self, username: str):
         super().__init__(status_code=403,
                          detail=f'User with name {username} already exists')
+
+class credentials_exception(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=401,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
