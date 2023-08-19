@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
-from ..utils import get_task, sql_task_to_dict, add_id_to_task
+from ..utils import get_task, sql_model_to_dict, add_id_to_dict
 from ..database import get_db
 from .. import schemas, models
 
@@ -17,7 +17,7 @@ def index_all_tasks(db: Session = Depends(get_db)):
 @router.get('/{index}', response_model=schemas.TaskResponse)
 def task_detail(index: int, db: Session = Depends(get_db)):
     task = get_task(index, db)
-    return sql_task_to_dict(task)
+    return sql_model_to_dict(task)
 
 @router.head('/{index}', status_code=204)
 def does_task_exist(index: int, db: Session = Depends(get_db)):
@@ -35,7 +35,7 @@ def create_task(sent_task: schemas.Task, db: Session = Depends(get_db)):
     db.add(task)
     db.commit()
     db.refresh(task)
-    return sql_task_to_dict(task)
+    return sql_model_to_dict(task)
 
 @router.put('/{index}')
 def modify_task(sent_task: schemas.Task, index: int, db: Session = Depends(get_db)):
@@ -44,15 +44,16 @@ def modify_task(sent_task: schemas.Task, index: int, db: Session = Depends(get_d
     task.description = sent_task.description
     db.commit()
     db.refresh(task)
-    return add_id_to_task(task, index)
+    return add_id_to_dict(task, index)
 
 @router.patch('/{index}')
-def complete_or_uncomplete_task(complete: schemas.CompleteTask, index: int, db: Session = Depends(get_db)):
+def complete_or_uncomplete_task(
+        complete: schemas.CompleteTask,index: int, db: Session = Depends(get_db)):
     task = get_task(index, db)
     task.completed = complete.completed
     db.commit()
     db.refresh(task)
-    return add_id_to_task(task, index)
+    return add_id_to_dict(task, index)
 
 @router.delete('/{index}', status_code=204)
 def delete_task(index: int, db: Session = Depends(get_db)):
